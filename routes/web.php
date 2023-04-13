@@ -14,6 +14,8 @@ use App\Http\Controllers\UserDetailsController;
 |
 */
 
+
+
 Route::get('/', [UserDetailsController::class, 'index']);
 Route::get('list_data', [UserDetailsController::class, 'list_data']);
 Route::get('data_view', [UserDetailsController::class, 'data_view']);
