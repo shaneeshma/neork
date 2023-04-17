@@ -9,5 +9,8 @@ class Category extends Model
 {
     use HasFactory;
     protected $table = 'categories';
-
+    public function users()
+    {
+        return $this->hasMany(User_detail::class);
+    }
 }

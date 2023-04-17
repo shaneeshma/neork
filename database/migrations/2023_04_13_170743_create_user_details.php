@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name',100);
             $table->string('contact_no',15);
-            $table->string('hobbies');
             $table->integer('category_id')->references('id')->on('categories');
             $table->string('profile_img');
             $table->timestamps();

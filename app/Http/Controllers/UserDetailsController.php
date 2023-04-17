@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use DB;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserDetailsController extends Controller
 {
@@ -25,38 +26,8 @@ class UserDetailsController extends Controller
 
     public function list_data(Request $request)
     {
-
-
-        $arr_user_details = User_detail::join('categories', 'categories.id', 'user_details.category_id')
-            // ->leftjoin('user_hobbies','user_details.id','user_hobbies.user_id')
-            // ->leftjoin('hobbies','hobbies.id','user_hobbies.hobby_id')
-            ->select('user_details.*', 'categories.category')->get();
-        // $arr_user_details = $arr_user_details->orderBy('id', 'DESC')->paginate(10);
-        // return $arr_user_details;
-        if (count($arr_user_details) > 0) {
-            // $slno = $arr_user_details->firstItem();
-            $slno = 1;
-            $table = '';
-            foreach ($arr_user_details as $objDet) {
-                $profile_img = url('public/uploads/images/' . $objDet->profile_img);
-                $table .= "<tr style='text-align:center;' scope='row'>";
-                $table .= "<td width='15%'>$objDet->name</td>";
-                $table .= "<td width='10%'>$objDet->contact_no</td>";
-                $table .= "<td width='20%'>$objDet->hobbies</td>";
-                $table .= "<td width='10%'>$objDet->category</td>";
-                $table .= "<td width='10%'><img src ='$profile_img' width='100' height='100'></td>";
-                $table .= '<td width="10%"><a onclick="edit_User_detail(' . $objDet->id . ')" style="padding: 0 0.5rem;color:#12AF41; cursor: pointer;" >Edit</a>/
-                    <a onclick="delete_User_detail(' . $objDet->id . ')" style="padding: 0 0.5rem;color:#E91F1F; cursor: pointer;" >Delete</a></td></tr>';
-                $slno++;
-            }
-        } else {
-
-            $table = "<tr><td colspan=6 style='text-align:center'>No Results Found</td></tr>";
-            $showing = "";
-            $pagination = "";
-        }
-
-        return array('table' => $table);
+        $arr_user_details = User_detail::with('category')->with('hobbies')->get();
+        return array('tableData' => $arr_user_details, "countData" => count($arr_user_details));
     }
 
     public function save(Request $request)
@@ -89,32 +60,33 @@ class UserDetailsController extends Controller
             $file->move($destinationPath . '/images',  $filename);
             $product_img =  $filename;
         }
+        try {
+            $objUserDetails->name = $request->name;
+            $objUserDetails->contact_no = $request->contact_no;
+            $objUserDetails->category_id = $request->category_id;
+            if ($product_img)
+                $objUserDetails->profile_img = $product_img;
 
+            $objUserDetails->save();
 
-        $objUserDetails->name = $request->name;
-        $objUserDetails->contact_no = $request->contact_no;
-        $objUserDetails->hobbies = $request->hobby_names;
-        $objUserDetails->category_id = $request->category_id;
-        if ($product_img)
-            $objUserDetails->profile_img = $product_img;
+            if ($request->hobbies) {
 
-        $objUserDetails->save();
+                $arr_hobbies = explode(',', $request->hobbies);
 
-        if ($request->hobbies) {
-
-            $arr_hobbies = explode(',', $request->hobbies);
-
-            UserHobby::where('user_id', $objUserDetails->id)->delete();
-            for ($i = 0; $i < count($arr_hobbies); $i++) {
-                if ($arr_hobbies[$i]) {
-                    $user_hobby = new UserHobby();
-                    $user_hobby->user_id =  $objUserDetails->id;
-                    $user_hobby->hobby_id =  $arr_hobbies[$i];
-                    $user_hobby->save();
+                UserHobby::where('user_detail_id', $objUserDetails->id)->delete();
+                for ($i = 0; $i < count($arr_hobbies); $i++) {
+                    if ($arr_hobbies[$i]) {
+                        $user_hobby = new UserHobby();
+                        $user_hobby->user_detail_id =  $objUserDetails->id;
+                        $user_hobby->hobby_id =  $arr_hobbies[$i];
+                        $user_hobby->save();
+                    }
                 }
             }
+            return response()->json(["status" => "success", "message" => "Saved successfully"]);
+        } catch (Exception $e) {
+            return response()->json(["status" => "failed", "message" => $e]);
         }
-        return response()->json(['status' => 'User Details has been saved']);
     }
 
     public function data_view(Request $request)
@@ -122,19 +94,25 @@ class UserDetailsController extends Controller
         $id = $request->id;
         if ($id != "") {
             $details = User_detail::find($id);
-            $hobbies = UserHobby::where('user_id', $id)->pluck('hobby_id');
+            $hobbies = $details->hobbies()->pluck('hobbies.id')->toArray();
+
+            // $hobbies = collect($details->hobbies)->pluck('id');
 
             return response()->json(['details' => $details, 'hobbies' => $hobbies]);
         }
     }
     public function delete_user(Request $request)
     {
-        $id = $request->id;
-        if ($id != "") {
-            $details = User_detail::find($id);
+        try {
+            $id = $request->id;
+            if ($id != "") {
+                $details = User_detail::find($id);
 
-            $details->delete();
-            return response()->json("success");
+                $details->delete();
+                return response()->json(["status" => "success", "message" => "Deleted successfully"]);
+            }
+        } catch (Exception $e) {
+            return response()->json(["status" => "failed", "message" => $e]);
         }
     }
 }

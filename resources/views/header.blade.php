@@ -13,5 +13,7 @@
     <script src="{{asset('asset/js/bootstrap.bundle.min.js')}}"></script>
 
 
-    <script src="{{asset('asset/js/jquery-3.6.1.min.js')}}"></script>
-    <script src="{{asset('asset/js/jquery.validate.min.js')}}"></script>
+    <script src="http://code.jquery.com/jquery-3.6.1.min.js" type="text/javascript"></script>
+
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.10.0/jquery.validate.js" type="text/javascript">
+    </script>

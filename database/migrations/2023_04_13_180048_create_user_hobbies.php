@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_hobbies', function (Blueprint $table) {
+        Schema::create('hobby_user_detail', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->references('id')->on('user_details');
+            $table->integer('user_detail_id')->references('id')->on('user_details');
             $table->integer('hobby_id')->references('id')->on('hobbies');  
             $table->timestamps();
                       
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_hobbies');
+        Schema::dropIfExists('hobby_user_detail');
     }
 };

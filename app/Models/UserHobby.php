@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class UserHobby extends Model
 {
     use HasFactory;
-    protected $table = 'user_hobbies';
+    protected $table = 'hobby_user_detail';
 
 }

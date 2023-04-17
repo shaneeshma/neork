@@ -52,14 +52,18 @@ td {
                 <input type="hidden" id="user_id" name="user_id">
                 <table>
                     <tr>
-                        <td>Name</td>
+                        <td>
+                            <lable for="image">Name</lable>
+                        </td>
                         <td><input type=" text" name="name" id="name"
                                 style="background-color: #5ba2e687;border-width: 0.05;">
                             <span class="error_cls" id="name_error"></span>
                         </td>
                     </tr>
                     <tr>
-                        <td>Contact no</td>
+                        <td>
+                            <lable for="image">Contact no</lable>
+                        </td>
                         <td><input type=" text" name="contact_no" id="contact_no" minlength="10" maxlength="15"
                                 style="background-color: #5ba2e687;border-width: 0.05;" onKeyPress=" return numonly()">
                             <span class="error_cls" id="contact_no_error"></span>
